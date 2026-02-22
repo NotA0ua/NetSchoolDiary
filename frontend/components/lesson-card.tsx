@@ -71,9 +71,7 @@ function WeightBadge({ weight }: { weight: number }) {
   )
 }
 
-function HomeworkDetailPanel({ assignment, shouldFetch, data, error, isLoading }) {
-  if (!shouldFetch) return null
-
+function DetailPanel({ assignment, shouldFetch, data, error, isLoading }) {
   if (isLoading) {
     return (
       <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
@@ -96,11 +94,18 @@ function HomeworkDetailPanel({ assignment, shouldFetch, data, error, isLoading }
 
   const hasDescription = data.description && data.description !== assignment.content
   const hasAttachments = data.attachments && data.attachments.length > 0
+  const hasComment = assignment.comment && assignment.comment.length > 0
 
-  if (!hasDescription && !hasAttachments) return null
+  if (!hasDescription && !hasAttachments && !hasComment) return null
 
   return (
     <div className="mt-2 flex flex-col gap-2">
+      {hasComment && (
+        <div className="rounded-md bg-secondary/50 px-3 py-2">
+          <p className="text-xs font-medium text-muted-foreground mb-0.5">Комментарий</p>
+          <p className="text-sm leading-relaxed text-card-foreground">{assignment.comment}</p>
+        </div>
+      )}
       {hasDescription && (
         <div className="rounded-md bg-secondary/50 px-3 py-2">
           <p className="text-xs font-medium text-muted-foreground mb-0.5">Подробности</p>
@@ -153,7 +158,7 @@ export function HomeworkItem({a, i}) {
             <WeightBadge weight={a.weight} />
           </div>
           <p className="text-sm leading-relaxed text-card-foreground">{a.content}</p>
-          <HomeworkDetailPanel assignment={a} shouldFetch={shouldFetch} data={data} error={error} isLoading={isLoading} />
+          <DetailPanel assignment={a} shouldFetch={shouldFetch} data={data} error={error} isLoading={isLoading} />
         </div>
       </div>
     </div>
@@ -178,6 +183,7 @@ export function OtherItem({a, i}) {
           <WeightBadge weight={a.weight} />
         </div>
         <p className="text-sm leading-relaxed text-card-foreground">{a.content}</p>
+        <DetailPanel assignment={a} shouldFetch={shouldFetch} data={data} error={error} isLoading={isLoading} />
       </div>
     </div>
   )

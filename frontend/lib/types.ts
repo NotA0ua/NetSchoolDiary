@@ -5,6 +5,7 @@ export interface ApiAssignment {
   type: string
   content: string
   mark: number | null
+  weight: number
   is_duty: boolean
   deadline: string
 }
@@ -30,7 +31,6 @@ export interface ApiDiaryResponse {
 // API response from /homework/{assignment_id}
 export interface ApiHomeworkDetails {
   id: number
-  weight: number
   description: string
   attachments: {
     name?: string
