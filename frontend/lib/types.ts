@@ -30,6 +30,7 @@ export interface ApiDiaryResponse {
 // API response from /homework/{assignment_id}
 export interface ApiHomeworkDetails {
   id: number
+  weight: number
   description: string
   attachments: {
     name?: string

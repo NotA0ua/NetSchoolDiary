@@ -11,6 +11,7 @@ import {
   Paperclip,
   Star,
   AlertCircle,
+  WeightTilde
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { ApiLesson, ApiAssignment, ApiHomeworkDetails } from "@/lib/types"
@@ -61,14 +62,16 @@ function MarkBadge({ mark }: { mark: number }) {
   )
 }
 
-function HomeworkDetailPanel({ assignment }: { assignment: ApiAssignment }) {
-  const shouldFetch = assignment.id > 0
-  const { data, error, isLoading } = useSWR<ApiHomeworkDetails>(
-    shouldFetch ? `/api/homework/${assignment.id}` : null,
-    fetcher,
-    { revalidateOnFocus: false }
+function WeightBadge({ weight }: { weight: number }) {
+  return (
+    <span className={cn("inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-bold bg-slate-500/15 text-slate-600 dark:text-slate-400")}>
+      <WeightTilde className="h-3 w-3" />
+      {weight}
+    </span>
   )
+}
 
+function HomeworkDetailPanel({ assignment, shouldFetch, data, error, isLoading }) {
   if (!shouldFetch) return null
 
   if (isLoading) {
@@ -114,8 +117,8 @@ function HomeworkDetailPanel({ assignment }: { assignment: ApiAssignment }) {
             {data.attachments.map((file, i) => (
               <a
                 key={i}
-                href={file.url}
-                target="_blank"
+                href={`/api/file/${file.id}`}
+                download
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-secondary/70"
               >
@@ -128,6 +131,54 @@ function HomeworkDetailPanel({ assignment }: { assignment: ApiAssignment }) {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+export function HomeworkItem({a, i}) {
+  const shouldFetch = a.id > 0
+  const { data, error, isLoading } = useSWR<ApiHomeworkDetails>(
+    shouldFetch ? `/api/homework/${a.id}` : null,
+    fetcher,
+    { revalidateOnFocus: false }
+  )
+  return (
+    <div key={`hw-${i}`}>
+      <div className="flex items-start gap-2.5 rounded-lg bg-primary/5 p-3">
+        <BookOpen className="h-4 w-4 mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <AssignmentBadge type={a.type} />
+            {a.mark !== null && <MarkBadge mark={a.mark} />}
+            <WeightBadge weight={a.weight} />
+          </div>
+          <p className="text-sm leading-relaxed text-card-foreground">{a.content}</p>
+          <HomeworkDetailPanel assignment={a} shouldFetch={shouldFetch} data={data} error={error} isLoading={isLoading} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function OtherItem({a, i}) {
+  const shouldFetch = a.id > 0
+  const { data, error, isLoading } = useSWR<ApiHomeworkDetails>(
+    shouldFetch ? `/api/homework/${a.id}` : null,
+    fetcher,
+    { revalidateOnFocus: false }
+  )
+
+  return (
+    <div key={`other-${i}`} className="flex items-start gap-2.5 rounded-lg bg-secondary/40 p-3">
+      <FileText className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <AssignmentBadge type={a.type} />
+          {a.mark !== null && <MarkBadge mark={a.mark} />}
+          <WeightBadge weight={a.weight} />
+        </div>
+        <p className="text-sm leading-relaxed text-card-foreground">{a.content}</p>
+      </div>
     </div>
   )
 }
@@ -215,35 +266,10 @@ export function LessonCard({ lesson, isExpanded, onToggle }: LessonCardProps) {
         <div className="overflow-hidden">
           <div className="border-t border-dashed border-border px-4 pb-4 pt-3 flex flex-col gap-2.5">
             {/* Homework assignments */}
-            {homeworkAssignments.map((a, i) => (
-              <div key={`hw-${i}`}>
-                <div className="flex items-start gap-2.5 rounded-lg bg-primary/5 p-3">
-                  <BookOpen className="h-4 w-4 mt-0.5 shrink-0 text-primary" aria-hidden="true" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <AssignmentBadge type={a.type} />
-                      {a.mark !== null && <MarkBadge mark={a.mark} />}
-                    </div>
-                    <p className="text-sm leading-relaxed text-card-foreground">{a.content}</p>
-                    <HomeworkDetailPanel assignment={a} />
-                  </div>
-                </div>
-              </div>
-            ))}
+            {homeworkAssignments.map((a, i) => (<HomeworkItem key={a.id ?? i} a={a} i={i} />))}
 
             {/* Other assignments */}
-            {otherAssignments.map((a, i) => (
-              <div key={`other-${i}`} className="flex items-start gap-2.5 rounded-lg bg-secondary/40 p-3">
-                <FileText className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <AssignmentBadge type={a.type} />
-                    {a.mark !== null && <MarkBadge mark={a.mark} />}
-                  </div>
-                  <p className="text-sm leading-relaxed text-card-foreground">{a.content}</p>
-                </div>
-              </div>
-            ))}
+            {otherAssignments.map((a, i) => (<OtherItem key={a.id ?? i} a={a} i={i}/>))}
           </div>
         </div>
       </div>

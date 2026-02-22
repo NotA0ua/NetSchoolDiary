@@ -17,29 +17,3 @@ async def connect_and_login() -> NetSchoolAPI:
         requests_timeout=5,
     )
     return ns
-
-
-async def get_lessons(ns: NetSchoolAPI, diary: Diary) -> list[Day] | None:
-    days = diary.schedule
-
-    return days.sort(key=lambda d: d.day.day)
-
-
-async def diary_delta(
-    ns: NetSchoolAPI,
-    delta: int = 0,
-    requests_timeout: int | None = None,
-) -> Diary:
-    monday = date.today() - timedelta(days=(date.today().weekday()))
-    start = monday + timedelta(days=delta * 7)
-    end = start + timedelta(days=6)
-
-    return await ns.diary(start, end, requests_timeout)
-
-
-# async def get_diary():
-#
-#
-#     await get_lessons(ns, diary)
-#
-#     await ns.logout()

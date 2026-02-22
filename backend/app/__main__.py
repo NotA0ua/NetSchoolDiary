@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request
 from datetime import datetime
 from contextlib import asynccontextmanager
 
-from app.diary import connect_and_login, diary_delta
+from app.diary import connect_and_login
 
 
 @asynccontextmanager
@@ -32,13 +32,13 @@ async def root() -> dict[str, Any]:
 @app.get("/diary")
 async def get_diary(request: Request):
     ns = request.app.state.ns
-    return await diary_delta(ns)
+    return await ns.diary_delta()
 
 
 @app.get("/diary/{delta}")
 async def get_diary(request: Request, delta: int):
     ns = request.app.state.ns
-    return await diary_delta(ns, delta)
+    return await ns.diary_delta(delta)
 
 
 @app.get("/homework/{assignment_id}")
@@ -46,3 +46,10 @@ async def get_homework(request: Request, assignment_id: int):
     ns = request.app.state.ns
     attachments = await ns.assignments(assignment_id)
     return attachments
+
+
+@app.get("/file/{file_id}")
+async def get_file(request: Request, file_id: int):
+    ns = request.app.state.ns
+    file = await ns.download_attachment(file_id)
+    return file
