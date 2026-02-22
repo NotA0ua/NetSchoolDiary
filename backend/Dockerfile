@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends git \
 
 WORKDIR /app
 
-COPY pyproject.toml ./
+COPY uv.lock pyproject.toml ./
 
 
 RUN uv sync --frozen

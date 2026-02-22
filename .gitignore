@@ -19,7 +19,6 @@ build/
 # uv (ultralight)
 # -----------------
 .uv/
-uv.lock
 
 # -----------------
 # VSCode / JetBrains
