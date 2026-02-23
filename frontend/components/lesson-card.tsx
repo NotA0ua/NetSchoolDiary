@@ -122,8 +122,8 @@ function DetailPanel({ assignment, shouldFetch, data, error, isLoading }) {
             {data.attachments.map((file, i) => (
               <a
                 key={i}
-                href={`/api/file/${file.id}`}
-                download
+                href={`/api/file/${file.id}/?filename=${file.name}`}
+                download={file.name}
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-secondary/70"
               >

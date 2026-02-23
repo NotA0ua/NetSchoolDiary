@@ -162,7 +162,7 @@ requires-dist = [
 [[package]]
 name = "netschoolapi"
 version = "11.0.11"
-source = { git = "https://github.com/nota0ua/netschoolapi#414d56fb3e17991fdf17c3f17e991f32070f45b1" }
+source = { git = "https://github.com/nota0ua/netschoolapi#3842ac7b7cb074977cf8795d550f67ff1afeff28" }
 dependencies = [
     { name = "httpx" },
     { name = "marshmallow" },
