@@ -45,7 +45,7 @@ function AssignmentBadge({ type }: { type: string }) {
   )
 }
 
-function MarkBadge({ mark }: { mark: number }) {
+function MarkBadge({ mark, dutyMark }: { mark: number, dutyMark: boolean }) {
   const color =
     mark === 5
       ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
@@ -53,7 +53,12 @@ function MarkBadge({ mark }: { mark: number }) {
         ? "bg-sky-500/15 text-sky-600 dark:text-sky-400"
         : mark === 3
           ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-          : "bg-red-500/15 text-red-600 dark:text-red-400"
+          : mark === 2
+            ? "bg-red-500/15 text-red-600 dark:text-red-400"
+            : "bg-red-600/15 text-red-700 dark:text-red-500"
+
+  if (dutyMark === true) mark = "•"
+
   return (
     <span className={cn("inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-bold", color)}>
       <Star className="h-3 w-3" />
@@ -154,7 +159,7 @@ export function HomeworkItem({a, i}) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <AssignmentBadge type={a.type} />
-            {a.mark !== null && <MarkBadge mark={a.mark} />}
+            {(a.mark !== null || a.dutyMark === true) && <MarkBadge mark={a.mark} dutyMark={a.dutyMark}/>}
             <WeightBadge weight={a.weight} />
           </div>
           <p className="text-sm leading-relaxed text-card-foreground">{a.content}</p>
@@ -179,7 +184,7 @@ export function OtherItem({a, i}) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           <AssignmentBadge type={a.type} />
-          {a.mark !== null && <MarkBadge mark={a.mark} />}
+          {(a.mark !== null || a.dutyMark === true) && <MarkBadge mark={a.mark} dutyMark={a.dutyMark}/>}
           <WeightBadge weight={a.weight} />
         </div>
         <p className="text-sm leading-relaxed text-card-foreground">{a.content}</p>
@@ -235,9 +240,9 @@ export function LessonCard({ lesson, isExpanded, onToggle }: LessonCardProps) {
             <div className="flex items-center gap-1.5 shrink-0">
               {/* Show marks inline */}
               {lesson.assignments
-                .filter((a) => a.mark !== null)
+                .filter((a) => a.mark !== null || a.dutyMark === true)
                 .map((a, i) => (
-                  <MarkBadge key={i} mark={a.mark!} />
+                  <MarkBadge key={i} mark={a.mark!} dutyMark={a.dutyMark} />
                 ))}
               {hasAnyAssignment && (
                 <ChevronDown
