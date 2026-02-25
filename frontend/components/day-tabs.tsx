@@ -2,14 +2,16 @@
 
 import { cn } from "@/lib/utils"
 import type { DaySchedule } from "@/lib/types"
+import { getTodayDayIndex } from "@/lib/schedule";
 
 interface DayTabsProps {
   days: DaySchedule[]
   activeDay: number
   onDayChange: (index: number) => void
+  delta: number
 }
 
-export function DayTabs({ days, activeDay, onDayChange }: DayTabsProps) {
+export function DayTabs({ days, activeDay, onDayChange, delta }: DayTabsProps) {
   return (
     <nav aria-label="Дни недели" className="flex gap-1 rounded-xl bg-secondary/60 p-1.5">
       {days.map((day, index) => (
@@ -21,7 +23,10 @@ export function DayTabs({ days, activeDay, onDayChange }: DayTabsProps) {
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             activeDay === index
               ? "bg-primary text-primary-foreground shadow-md"
-              : "text-muted-foreground hover:bg-card hover:text-foreground"
+              : "text-muted-foreground hover:bg-card hover:text-foreground",
+            delta === 0 && index == getTodayDayIndex(days)
+              ? "text-rose-300"
+              : ""
           )}
           aria-current={activeDay === index ? "true" : undefined}
         >

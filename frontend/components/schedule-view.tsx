@@ -235,6 +235,7 @@ export function ScheduleView() {
               days={weekData.days}
               activeDay={activeDay}
               onDayChange={handleDayChange}
+              delta={delta}
             />
           </div>
 
