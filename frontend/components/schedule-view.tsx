@@ -1,116 +1,139 @@
-"use client"
+"use client";
 
-import { useState, useCallback, useEffect } from "react"
-import useSWR from "swr"
-import { CalendarDays, BookOpenCheck, ChevronLeft, ChevronRight, Loader2, AlertCircle, RefreshCw } from "lucide-react"
-import { DayTabs } from "@/components/day-tabs"
-import { LessonCard } from "@/components/lesson-card"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { transformDiaryResponse, getTodayDayIndex } from "@/lib/schedule"
-import type { ApiDiaryResponse } from "@/lib/types"
+import { useState, useCallback, useEffect } from "react";
+import useSWR from "swr";
+import {
+  CalendarDays,
+  BookOpenCheck,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
+import { DayTabs } from "@/components/day-tabs";
+import { LessonCard } from "@/components/lesson-card";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { transformDiaryResponse, getTodayDayIndex } from "@/lib/schedule";
+import type { ApiDiaryResponse } from "@/lib/types";
 
-const fetcher = (url: string) => fetch(url).then((r) => {
-  if (!r.ok) throw new Error("Ошибка загрузки")
-  return r.json()
-})
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error("Ошибка загрузки");
+    return r.json();
+  });
 
 export function ScheduleView() {
-  const [delta, setDelta] = useState(0)
-  const [activeDay, setActiveDay] = useState(0)
-  const [expandedLessons, setExpandedLessons] = useState<Set<string>>(new Set())
-  const [initialDaySet, setInitialDaySet] = useState(false)
+  const [delta, setDelta] = useState(0);
+  const [activeDay, setActiveDay] = useState(0);
+  const [expandedLessons, setExpandedLessons] = useState<Set<string>>(
+    new Set(),
+  );
+  const [initialDaySet, setInitialDaySet] = useState(false);
 
-  const { data: rawData, error, isLoading, mutate } = useSWR<ApiDiaryResponse>(
+  const {
+    data: rawData,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR<ApiDiaryResponse>(
     delta === 0 ? "/api/diary" : `/api/diary?delta=${delta}`,
     fetcher,
-    { revalidateOnFocus: false }
-  )
+    { revalidateOnFocus: false },
+  );
 
-  const weekData = rawData ? transformDiaryResponse(rawData) : null
+  const weekData = rawData ? transformDiaryResponse(rawData) : null;
 
   // Set active day to today on first load of current week
   useEffect(() => {
     if (weekData && !initialDaySet) {
-      setActiveDay(getTodayDayIndex(weekData.days))
-      setInitialDaySet(true)
+      let today = getTodayDayIndex(weekData.days);
+      setActiveDay(weekData.days.length - 1 === today ? today : today + 1);
+      setInitialDaySet(true);
     }
-  }, [weekData, initialDaySet])
+  }, [weekData, initialDaySet]);
 
   // Reset active day when switching weeks
   useEffect(() => {
     if (delta !== 0) {
-      setActiveDay(0)
+      setActiveDay(0);
     } else {
       // Re-detect today when going back to current week
-      setInitialDaySet(false)
+      setInitialDaySet(false);
     }
-    setExpandedLessons(new Set())
-  }, [delta])
+    setExpandedLessons(new Set());
+  }, [delta]);
 
   const goToPrevWeek = useCallback(() => {
-    setDelta((prev) => prev - 1)
-  }, [])
+    setDelta((prev) => prev - 1);
+  }, []);
 
   const goToNextWeek = useCallback(() => {
-    setDelta((prev) => prev + 1)
-  }, [])
+    setDelta((prev) => prev + 1);
+  }, []);
 
   const goToCurrentWeek = useCallback(() => {
-    setDelta(0)
-  }, [])
+    setDelta(0);
+  }, []);
 
   const handleDayChange = useCallback((index: number) => {
-    setActiveDay(index)
-    setExpandedLessons(new Set())
-  }, [])
+    setActiveDay(index);
+    setExpandedLessons(new Set());
+  }, []);
 
   const toggleLesson = useCallback((key: string) => {
     setExpandedLessons((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (next.has(key)) {
-        next.delete(key)
+        next.delete(key);
       } else {
-        next.add(key)
+        next.add(key);
       }
-      return next
-    })
-  }, [])
+      return next;
+    });
+  }, []);
 
-  const currentDay = weekData?.days[activeDay]
+  const currentDay = weekData?.days[activeDay];
 
   const homeworkAssignments = currentDay
     ? currentDay.lessons.flatMap((l) =>
         l.assignments
-          .filter((a) => a.type === "Домашнее задание" && a.content !== "не задано")
-          .map((a) => `${l.day}-${l.number}`)
+          .filter(
+            (a) => a.type === "Домашнее задание" && a.content !== "не задано",
+          )
+          .map((a) => `${l.day}-${l.number}`),
       )
-    : []
+    : [];
 
-  const homeworkCount = new Set(homeworkAssignments).size
+  const homeworkCount = new Set(homeworkAssignments).size;
 
   const showAllHomework = useCallback(() => {
-    if (!currentDay) return
+    if (!currentDay) return;
     const keys = currentDay.lessons
       .filter((l) =>
-        l.assignments.some((a) => a.type === "Домашнее задание" && a.content !== "не задано")
+        l.assignments.some(
+          (a) => a.type === "Домашнее задание" && a.content !== "не задано",
+        ),
       )
-      .map((l) => `${l.day}-${l.number}`)
+      .map((l) => `${l.day}-${l.number}`);
 
     setExpandedLessons((prev) => {
-      const allExpanded = keys.every((k) => prev.has(k))
-      if (allExpanded) return new Set()
-      return new Set(keys)
-    })
-  }, [currentDay])
+      const allExpanded = keys.every((k) => prev.has(k));
+      if (allExpanded) return new Set();
+      return new Set(keys);
+    });
+  }, [currentDay]);
 
   const allHomeworkExpanded =
     homeworkCount > 0 &&
     currentDay !== undefined &&
     currentDay.lessons
       .filter((l) =>
-        l.assignments.some((a) => a.type === "Домашнее задание" && a.content !== "не задано")
+        l.assignments.some(
+          (a) => a.type === "Домашнее задание" && a.content !== "не задано",
+        ),
       )
-      .every((l) => expandedLessons.has(`${l.day}-${l.number}`))
+      .every((l) => expandedLessons.has(`${l.day}-${l.number}`));
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8 md:py-12">
@@ -154,7 +177,7 @@ export function ScheduleView() {
                   onClick={goToCurrentWeek}
                   className="text-xs text-primary hover:underline mt-0.5"
                 >
-                  Текущая неделя
+                  На текущую неделю
                 </button>
               )}
             </>
@@ -186,8 +209,12 @@ export function ScheduleView() {
             <AlertCircle className="h-7 w-7 text-destructive" />
           </div>
           <div className="text-center">
-            <p className="text-sm font-medium text-foreground">Не удалось загрузить расписание</p>
-            <p className="text-xs text-muted-foreground mt-1">Проверьте подключение к API</p>
+            <p className="text-sm font-medium text-foreground">
+              Не удалось загрузить расписание
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Проверьте подключение к API
+            </p>
           </div>
           <button
             onClick={() => mutate()}
@@ -204,7 +231,11 @@ export function ScheduleView() {
         <>
           {/* Day tabs */}
           <div className="mb-6">
-            <DayTabs days={weekData.days} activeDay={activeDay} onDayChange={handleDayChange} />
+            <DayTabs
+              days={weekData.days}
+              activeDay={activeDay}
+              onDayChange={handleDayChange}
+            />
           </div>
 
           {currentDay && (
@@ -239,9 +270,13 @@ export function ScheduleView() {
               </div>
 
               {/* Lessons list */}
-              <div className="flex flex-col gap-3" role="list" aria-label={`Уроки на ${currentDay.dayName}`}>
+              <div
+                className="flex flex-col gap-3"
+                role="list"
+                aria-label={`Уроки на ${currentDay.dayName}`}
+              >
                 {currentDay.lessons.map((lesson) => {
-                  const key = `${lesson.day}-${lesson.number}`
+                  const key = `${lesson.day}-${lesson.number}`;
                   return (
                     <LessonCard
                       key={key}
@@ -249,7 +284,7 @@ export function ScheduleView() {
                       isExpanded={expandedLessons.has(key)}
                       onToggle={() => toggleLesson(key)}
                     />
-                  )
+                  );
                 })}
               </div>
 
@@ -270,5 +305,5 @@ export function ScheduleView() {
         </div>
       )}
     </div>
-  )
+  );
 }
