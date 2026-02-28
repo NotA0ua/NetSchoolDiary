@@ -1,12 +1,12 @@
-version: "3.9"
-
 services:
   backend:
     build: ./backend
     container_name: fastapi_backend
     ports:
-      - "8000:8000"
-    restart: always
+      - "4242:4242"
+    restart: unless-stopped
+    networks:
+      - app-net
 
   frontend:
     build: ./frontend
@@ -14,7 +14,11 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DIARY_API_URL=http://backend:8000
-    depends_on:
-      - backend
-    restart: always
+      - DIARY_API_URL=http://backend:4242
+    restart: unless-stopped
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge
