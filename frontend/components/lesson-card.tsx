@@ -205,10 +205,10 @@ export function LessonCard({ lesson, isExpanded, onToggle }: LessonCardProps) {
 
   // Separate homework from other assignments
   const homeworkAssignments = lesson.assignments.filter(
-    (a) => a.type === "Домашнее задание" && a.content !== "не задано"
+    (a) => a.type === "Домашнее задание"
   )
   const otherAssignments = lesson.assignments.filter(
-    (a) => !(a.type === "Домашнее задание" && a.content === "не задано")
+    (a) => !(a.type === "Домашнее задание")
   ).filter((a) => a.type !== "Домашнее задание")
 
   return (
