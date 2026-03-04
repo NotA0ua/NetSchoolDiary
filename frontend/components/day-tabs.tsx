@@ -1,19 +1,22 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
-import type { DaySchedule } from "@/lib/types"
+import { cn } from "@/lib/utils";
+import type { DaySchedule } from "@/lib/types";
 import { getTodayDayIndex } from "@/lib/schedule";
 
 interface DayTabsProps {
-  days: DaySchedule[]
-  activeDay: number
-  onDayChange: (index: number) => void
-  delta: number
+  days: DaySchedule[];
+  activeDay: number;
+  onDayChange: (index: number) => void;
+  delta: number;
 }
 
 export function DayTabs({ days, activeDay, onDayChange, delta }: DayTabsProps) {
   return (
-    <nav aria-label="Дни недели" className="flex gap-1 rounded-xl bg-secondary/60 p-1.5">
+    <nav
+      aria-label="Дни недели"
+      className="flex gap-1 rounded-xl bg-secondary/60 p-1.5"
+    >
       {days.map((day, index) => (
         <button
           key={day.isoDate}
@@ -24,9 +27,9 @@ export function DayTabs({ days, activeDay, onDayChange, delta }: DayTabsProps) {
             activeDay === index
               ? "bg-primary text-primary-foreground shadow-md"
               : "text-muted-foreground hover:bg-card hover:text-foreground",
-            delta === 0 && index == getTodayDayIndex(days)
+            delta === 0 && index === getTodayDayIndex(days)
               ? "text-rose-300"
-              : ""
+              : "",
           )}
           aria-current={activeDay === index ? "true" : undefined}
         >
@@ -35,7 +38,9 @@ export function DayTabs({ days, activeDay, onDayChange, delta }: DayTabsProps) {
           <span
             className={cn(
               "text-[10px] mt-0.5",
-              activeDay === index ? "text-primary-foreground/70" : "text-muted-foreground/60"
+              activeDay === index
+                ? "text-primary-foreground/70"
+                : "text-muted-foreground/60",
             )}
           >
             {day.date}
@@ -43,5 +48,5 @@ export function DayTabs({ days, activeDay, onDayChange, delta }: DayTabsProps) {
         </button>
       ))}
     </nav>
-  )
+  );
 }

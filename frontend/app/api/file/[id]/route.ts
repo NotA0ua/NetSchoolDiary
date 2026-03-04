@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
 
-const API_BASE = process.env.DIARY_API_URL || "http://127.0.0.1:4242"
+const API_BASE = process.env.DIARY_API_URL || "http://127.0.0.1:4242";
 
 export async function GET(
   request: Request,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   const params = await context.params;
   const id = params.id;
@@ -33,23 +33,25 @@ export async function GET(
         errorBody = await res.text();
       } catch {}
       return NextResponse.json(
-        { 
+        {
           error: "Upstream error",
           status: res.status,
-          details: errorBody.trim() || res.statusText 
+          details: errorBody.trim() || res.statusText,
         },
-        { status: res.status }
+        { status: res.status },
       );
     }
 
     const headers: Record<string, string> = {
-      "Content-Type": res.headers.get("content-type") || "application/octet-stream",
+      "Content-Type":
+        res.headers.get("content-type") || "application/octet-stream",
     };
 
     // Query-параметр имеет приоритет
     if (filenameFromQuery) {
       const encoded = encodeURIComponent(filenameFromQuery);
-      headers["Content-Disposition"] = `attachment; filename*=UTF-8''${encoded}`;
+      headers["Content-Disposition"] =
+        `attachment; filename*=UTF-8''${encoded}`;
     } else {
       const disposition = res.headers.get("content-disposition");
       headers["Content-Disposition"] =
@@ -60,7 +62,6 @@ export async function GET(
       status: 200,
       headers,
     });
-
   } catch (err: any) {
     console.error(`Proxy error for file ${id}:`, err);
 
