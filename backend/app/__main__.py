@@ -14,7 +14,7 @@ async def lifespan(app: FastAPI):
     ns = await connect_and_login()
     app.state.ns = ns
     yield
-    ns.logout()
+    await ns.logout()
 
 
 app = FastAPI(title="NetSchool Diary", version="1.0.0", lifespan=lifespan)
